@@ -110,9 +110,60 @@ app.controller('radioController', function ($rootScope, $location) {
     $rootScope.activetab = $location.path();
 });
 
-app.controller('cloudController', function ($rootScope, $location) {
+app.controller('cloudController',['$window','$scope', '$rootScope', '$location', '$http',
+    'AppService',function ($window, $scope, $rootScope, $location, $http, AppService) {
     $rootScope.activetab = $location.path();
-});
+
+    var cloudData = {
+        serverName : null,
+        port : null,
+        uuid : null,
+        token : null
+    }
+
+    $scope.getuuid = function(){
+        var url = 'http://'+ $scope.form.serverName + ':' + $scope.form.port+'/devices'
+        $http.post(url).
+            then(function(response){
+                $scope.form.uuid = response.data.uuid;
+                $scope.form.token = response.data.token;
+
+                console.log('Success');
+            },function(){
+                console.log('Failure');
+                console.log(url);
+        });
+    };
+
+    $scope.init = function () {
+      AppService.loadCloudInfo(function success(result) {
+            cloudData.serverName = result.data.serverName != "" ? result.data.serverName : null;
+            cloudData.port = result.data.port != "" ? result.data.port : null;
+            cloudData.uuid = result.data.uuid != "" ? result.data.uuid : null;
+            cloudData.token = result.data.token != "" ? result.data.token : null;
+        }, function error(error) {
+            console.log(error);
+        });
+
+        $scope.form = cloudData;
+    }
+
+    $scope.save = function () {
+        var cloudConfig = {
+            "serverName": $scope.form.serverName,
+            "port": $scope.form.port,
+            "uuid": $scope.form.uuid,
+            "token": $scope.form.token
+        };
+
+        AppService.saveCloudInfo(cloudConfig, function success(result) {
+            alert("Cloud Information saved");
+        }, function error(error) {
+            alert(error);
+        });
+    };
+
+}]);
 
 
 
