@@ -28,9 +28,9 @@ function writeFile(type, incomingData, successCallback, errorCallback) {
       localData.administration.sshKey = incomingData.sshKey;
     }
     else if (type == "net") {
-      
+
       localData.network.automaticIp = incomingData.automaticIp;
-      
+
       if (incomingData.automaticIp == false) {
         localData.network.ipaddress = incomingData.ipaddress;
         localData.network.defaultGateway = incomingData.defaultGateway;
@@ -41,6 +41,10 @@ function writeFile(type, incomingData, successCallback, errorCallback) {
         localData.network.defaultGateway = "";
         localData.network.networkMask = "";
       }
+    }
+    else if (type == "user") {
+        localData.user.email = incomingData.email;
+        localData.user.password = incomingData.password;
     }
 
     fs.writeFile(configurationFile, JSON.stringify(localData), 'utf8', successCallback);
@@ -56,6 +60,9 @@ serverConfig.get("/", function (req, res) {
 
 serverConfig.get("/main", function (req, res) {
   res.sendfile('main.html');
+});
+serverConfig.get("/signup", function (req, res) {
+  res.sendfile('views/signup.html');
 });
 
 serverConfig.post("/user/authentication", function (req, res) {
@@ -84,11 +91,23 @@ serverConfig.post("/user/authentication", function (req, res) {
        )); */
     res.end();
   });
+});
 
+serverConfig.post("/user/subscription", function (req, res) {
+  var body = '';
+  req.on('data', function (data) {
+    body += data;
+  });
 
-
-
-
+  req.on('end', function () {
+    var jsonObj = JSON.parse(body);
+    writeFile("user", jsonObj, function () {
+      console.log("success");
+    }, function (error) {
+      console.log("error");
+    });
+  });
+  res.end();
 });
 
 serverConfig.post("/administration/save", function (req, res) {
