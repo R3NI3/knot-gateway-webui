@@ -30,5 +30,9 @@ app.config(function ($routeProvider, $locationProvider) {
             templateUrl: 'views/cloud.html',
             controller: 'cloudController'
         })
+        .when('/signup', {
+            templateUrl: 'views/signup.html',
+            controller: 'signupController'
+        })
         //.otherwise ({ redirectTo: '/main' });
 });

@@ -1,6 +1,5 @@
 
 app.controller('siginController',function ($scope,$rootScope,$location, $window,SigninService) {
-
     var formData = {
         user: "default",
         password: "default",
@@ -16,5 +15,8 @@ app.controller('siginController',function ($scope,$rootScope,$location, $window,
             $window.location.href = '/main';
             //$location.path("/main"); // path not hash
         });
+    };
+    $scope.redirect = function () {
+        $window.location.href = '/signup';
     };
 });

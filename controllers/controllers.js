@@ -110,6 +110,19 @@ app.controller('radioController', function ($rootScope, $location) {
     $rootScope.activetab = $location.path();
 });
 
+app.controller('signupController', ['$window','$scope', '$http', 'SignupService' ,
+                                        function($window, $scope, $http, SignupService){
+    $scope.submitForm = function () {
+        SignupService.subscription($scope.form,function sucess(params) {
+            $window.location.href = '/';
+            //$location.path("/main"); // path not hash
+        }, function error(error){
+            $window.location.href = '/signup';
+        });
+    };
+
+}]);
+
 app.controller('cloudController', function ($rootScope, $location) {
     $rootScope.activetab = $location.path();
 });
