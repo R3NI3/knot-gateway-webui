@@ -28,9 +28,9 @@ function writeFile(type, incomingData, successCallback, errorCallback) {
       localData.administration.sshKey = incomingData.sshKey;
     }
     else if (type == "net") {
-      
+
       localData.network.automaticIp = incomingData.automaticIp;
-      
+
       if (incomingData.automaticIp == false) {
         localData.network.ipaddress = incomingData.ipaddress;
         localData.network.defaultGateway = incomingData.defaultGateway;
@@ -41,6 +41,13 @@ function writeFile(type, incomingData, successCallback, errorCallback) {
         localData.network.defaultGateway = "";
         localData.network.networkMask = "";
       }
+    }
+    else if (type == "radio") {
+      localData.radio.channel = incomingData.channel;
+      localData.radio.pwrRating = incomingData.pwrRating;
+      localData.radio.attempt = incomingData.attempt;
+      localData.radio.security = incomingData.security;
+      localData.radio.key = incomingData.key;
     }
 
     fs.writeFile(configurationFile, JSON.stringify(localData), 'utf8', successCallback);
@@ -161,6 +168,35 @@ serverConfig.get("/network/info", function (req, res) {
   });
 });
 
+serverConfig.post("/radio/save", function (req, res) {
+
+  var body = '';
+  req.on('data', function (data) {
+    body += data;
+  });
+
+  req.on('end', function () {
+    var jsonObj = JSON.parse(body);
+    writeFile("radio", jsonObj, function () {
+      console.log("success");
+    }, function (error) {
+      console.log(error);
+    });
+
+    res.end();
+  });
+});
+
+serverConfig.get("/radio/info", function (req, res) {
+  var obj;
+  fs.readFile('gatewayConfig.json', 'utf8', function (err, data) {
+    if (err)
+      throw err;
+    obj = JSON.parse(data);
+    res.setHeader('Content-Type', 'application/json');
+    res.send(obj.radio);
+  });
+});
 
 var port = process.env.PORT || 8080;
 serverConfig.listen(port, function () {
