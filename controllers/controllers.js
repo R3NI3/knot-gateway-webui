@@ -106,9 +106,42 @@ app.controller('mainController', function ($rootScope, $location) {
     $rootScope.activetab = $location.path();
 });
 
-app.controller('radioController', function ($rootScope, $location) {
+app.controller('radioController', ['$window','$scope', '$rootScope', '$location',
+    'AppService',function ($window, $scope, $rootScope, $location, AppService) {
+
     $rootScope.activetab = $location.path();
-});
+
+    var radioData = {
+        channel : null,
+        pwrRating : null,
+        attempt : null,
+        security : null,
+        key : null
+    }
+
+    $scope.init = function () {
+        AppService.loadRadioInfo(function success(result) {
+            radioData.channel = result.data.channel != "" ? result.data.channel : "10";
+            radioData.pwrRating = result.data.pwrRating != "" ? result.data.pwrRating : "-18";
+            radioData.attempt = result.data.attempt != "" ? result.data.attempt : "0";
+            radioData.security = result.data.security != "" ? result.data.security : null;
+            radioData.key = result.data.key != "" ? result.data.key : null;
+        }, function error(error) {
+            console.log(error);
+        });
+
+        $scope.form = radioData;
+    }
+
+    $scope.submitForm = function () {
+        AppService.saveRadioInfo($scope.form,function sucess(params) {
+            alert("Radio Information saved");
+        }, function error(error){
+            alert("An error occurred");
+        });
+    };
+
+}]);
 
 app.controller('cloudController', function ($rootScope, $location) {
     $rootScope.activetab = $location.path();
