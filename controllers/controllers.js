@@ -106,13 +106,110 @@ app.controller('mainController', function ($rootScope, $location) {
     $rootScope.activetab = $location.path();
 });
 
-app.controller('radioController', function ($rootScope, $location) {
-    $rootScope.activetab = $location.path();
-});
+app.controller('radioController', ['$window','$scope', '$rootScope', '$location',
+    'AppService',function ($window, $scope, $rootScope, $location, AppService) {
 
-app.controller('cloudController', function ($rootScope, $location) {
     $rootScope.activetab = $location.path();
-});
+
+    var radioData = {
+        channel : null,
+        pwrRating : null,
+        attempt : null,
+        security : null,
+        key : null
+    }
+
+    $scope.init = function () {
+        AppService.loadRadioInfo(function success(result) {
+            radioData.channel = result.data.channel != "" ? result.data.channel : "10";
+            radioData.pwrRating = result.data.pwrRating != "" ? result.data.pwrRating : "-18";
+            radioData.attempt = result.data.attempt != "" ? result.data.attempt : "0";
+            radioData.security = result.data.security != "" ? result.data.security : null;
+            radioData.key = result.data.key != "" ? result.data.key : null;
+        }, function error(error) {
+            console.log(error);
+        });
+
+        $scope.form = radioData;
+    }
+
+    $scope.submitForm = function () {
+        AppService.saveRadioInfo($scope.form,function sucess(params) {
+            alert("Radio Information saved");
+        }, function error(error){
+            alert("An error occurred");
+        });
+    };
+
+}]);
+
+app.controller('signupController', ['$window','$scope', '$http', 'SignupService' ,
+                                        function($window, $scope, $http, SignupService){
+    $scope.submitForm = function () {
+        SignupService.subscription($scope.form,function sucess(params) {
+            $window.location.href = '/';
+            //$location.path("/main"); // path not hash
+        }, function error(error){
+            $window.location.href = '/signup';
+        });
+    };
+
+}]);
+
+app.controller('cloudController',['$window','$scope', '$rootScope', '$location', '$http',
+    'AppService',function ($window, $scope, $rootScope, $location, $http, AppService) {
+    $rootScope.activetab = $location.path();
+
+    var cloudData = {
+        serverName : null,
+        port : null,
+        uuid : null,
+        token : null
+    }
+
+    $scope.getuuid = function(){
+        var url = 'http://'+ $scope.form.serverName + ':' + $scope.form.port+'/devices'
+        $http.post(url).
+            then(function(response){
+                $scope.form.uuid = response.data.uuid;
+                $scope.form.token = response.data.token;
+
+                console.log('Success');
+            },function(){
+                console.log('Failure');
+                console.log(url);
+        });
+    };
+
+    $scope.init = function () {
+      AppService.loadCloudInfo(function success(result) {
+            cloudData.serverName = result.data.serverName != "" ? result.data.serverName : null;
+            cloudData.port = result.data.port != "" ? result.data.port : null;
+            cloudData.uuid = result.data.uuid != "" ? result.data.uuid : null;
+            cloudData.token = result.data.token != "" ? result.data.token : null;
+        }, function error(error) {
+            console.log(error);
+        });
+
+        $scope.form = cloudData;
+    }
+
+    $scope.save = function () {
+        var cloudConfig = {
+            "serverName": $scope.form.serverName,
+            "port": $scope.form.port,
+            "uuid": $scope.form.uuid,
+            "token": $scope.form.token
+        };
+
+        AppService.saveCloudInfo(cloudConfig, function success(result) {
+            alert("Cloud Information saved");
+        }, function error(error) {
+            alert(error);
+        });
+    };
+
+}]);
 
 
 

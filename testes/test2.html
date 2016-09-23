@@ -1,0 +1,33 @@
+    <html ng-app>
+        <head>
+            <title>AngularJS - Tableless</title>
+            <script src="http://code.angularjs.org/1.0.1/angular-1.0.1.min.js"></script>
+            <script src="test2.js"></script>
+        </head>
+        <body>
+            <input type="text" ng-model="nome">
+            <p>Olá, Tableless! Meu nome é: {{ nome }}</p>
+            <div ng-controller="ListaDevicesController">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Quantidade</th>
+                    </tr>
+                    </thead>
+                <tbody>
+                    <tr ng-repeat="device in devices">
+                    <td><strong>{{ device.uuid }}</strong></td>
+                    <td>{{ device.token }}</td>
+                     </tr>
+                </tbody>
+                </table>
+            <form class="form-inline" name="formDevice">
+                <input type="text" ng-model="device.uuid">
+                <input type="number" ng-model="device.token">
+                <button ng-click="adicionaDevice()">adicionar device</button>
+            </form>
+        </div>
+        </body>
+    </html>
+
