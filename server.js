@@ -7,7 +7,7 @@ var configurationFile = 'gatewayConfig.json';
 var exec = require('child_process').exec;
 
 function stopKnotd(){
-  exec("kill -15 -'cat /tmp/$1.pid'", function(error, stdout, stderr) {
+  exec("kill -15 -'cat /tmp/knotd.pid'", function(error, stdout, stderr) {
     if(!error){
       console.log("success");
     }
