@@ -3,7 +3,7 @@
 app.factory('SigninService', function ($http/*, $location, $window*/) {
   var signinFactory = {};
 
-  signinFactory.authetication = function (userData, successCallback, errorCallback) {
+  signinFactory.authentication = function (userData, successCallback, errorCallback) {
     $http({
       method: 'POST',
       url: '/user/authentication',
@@ -16,8 +16,7 @@ app.factory('SigninService', function ($http/*, $location, $window*/) {
     }).then(function (response) {
       // this callback will be called asynchronously
       // when the response is available
-      successCallback();
-
+      successCallback(response);
       console.log(response);
     }, function (response) {
       // called asynchronously if an error occurs
@@ -46,9 +45,9 @@ app.factory('AppService', function ($http/*, $location, $window*/) {
           'Content-Type': 'application/json;charset=utf-8;'
         }
       }
+
     }).then(function (response) {
       successCallback();
-
       console.log(response);
     }, function (response) {
       if (errorCallback) {
@@ -113,7 +112,7 @@ app.factory('AppService', function ($http/*, $location, $window*/) {
         }
       }
 
-    }).then(function (data/*, status, headers, config*/) {
+    }).then(function (data) {
       successCallback(data);
     }, function (response) {
       if (errorCallback) {

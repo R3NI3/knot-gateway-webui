@@ -48,6 +48,25 @@ function writeFile(type, incomingData, successCallback, errorCallback) {
   });
 }
 
+function authenticate(incomingData, successCallback, errorCallback) {
+  var obj;
+  fs.readFile('gatewayConfig.json', 'utf8', function (err, data) {
+    if (err) {
+      errorCallback(500);
+    }
+    try {
+      obj = JSON.parse(data);
+      if (incomingData.user === obj.user.email && incomingData.password === obj.user.password) {
+        successCallback();
+      } else {
+        errorCallback('login error');
+      }
+    } catch (e) {
+      errorCallback(e);
+    }
+  });
+}
+
 serverConfig.use(express.static(__dirname + '/')); // eslint-disable-line no-path-concat
 
 /* serves main page */
@@ -60,30 +79,28 @@ serverConfig.get('/main', function (req, res) {
 });
 
 serverConfig.post('/user/authentication', function (req, res) {
-  // TODO
-  // var body = '';
-  req.on('data', function (/* data */) {
-    // body += data;
+  var body = '';
+  req.on('data', function (data) {
+    body += data;
   });
 
   req.on('end', function () {
-    // var jsonObj = JSON.parse(body);
-    // authenticated = true;
-    /*   passport.use(new LocalStrategy(
-         function (username, password, done) {
-           User.findOne({ username: username }, function (err, user) {
-             if (err) { return done(err); }
-             if (!user) {
-               return done(null, false, { message: 'Incorrect username.' });
-             }
-             if (!user.validPassword(password)) {
-               return done(null, false, { message: 'Incorrect password.' });
-             }
-             return done(null, user);
-           });
-         }
-       )); */
-    res.end();
+    var reqObj = JSON.parse(body);
+    authenticate(reqObj, function () {
+      console.log('Authenticated');
+      res.setHeader('Content-Type', 'application/json');
+      res.send({ authenticated: true });
+    }, function (err) {
+      if (err === 'login error') {
+        console.log('Failed');
+        res.setHeader('Content-Type', 'application/json');
+        res.send({ authenticated: false });
+      } else if (err === 500) {
+        res.send(500);
+      } else {
+        res.send(400);
+      }
+    });
   });
 });
 
