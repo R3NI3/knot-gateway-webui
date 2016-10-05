@@ -6,7 +6,6 @@ var localStrategy = require('passport-local').Strategy;
 var configurationFile = 'gatewayConfig.json';
 
 function writeFile(type, incomingData, successCallback, errorCallback) {
-
   fs.readFile(configurationFile, 'utf8', function (err, data) {
     if (err)
       errorCallback(err);
@@ -41,6 +40,23 @@ function writeFile(type, incomingData, successCallback, errorCallback) {
   });
 }
 
+function authenticate(incomingData, successCallback, errorCallback){
+  fs.readFile('gatewayConfig.json', 'utf8', function (err, data) {
+      if (err)
+        errorCallback();
+
+      obj = JSON.parse(data);
+
+      if (incomingData.user == obj.user.email && incomingData.password == obj.user.password){
+        successCallback();
+      }
+      else {
+        errorCallback();
+      }
+
+    })
+}
+
 serverConfig.use(express.static(__dirname + '/'));
 
 /* serves main page */
@@ -53,16 +69,22 @@ serverConfig.get("/main", function (req, res) {
 });
 
 serverConfig.post("/user/authentication", function (req, res) {
-  //TODO
   var body = '';
   req.on('data', function (data) {
     body += data;
   });
 
   req.on('end', function () {
-    var jsonObj = JSON.parse(body);
-    authenticated = true;
-    res.end();
+    var reqObj = JSON.parse(body);
+    authenticate(reqObj, function(){
+      console.log("Authenticated");
+      res.setHeader('Content-Type', 'application/json');
+      res.send({ "authenticated" : true });
+    }, function(){
+      console.log("Failed");
+      res.setHeader('Content-Type', 'application/json');
+      res.send({ "authenticated" : false });
+    })
   });
 });
 

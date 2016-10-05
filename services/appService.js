@@ -14,9 +14,9 @@ app.factory('SigninService', function ($http, $location, $window) {
         }).then(function (response) {
             // this callback will be called asynchronously
             // when the response is available
-            successCallback();
+            successCallback(data);
 
-            console.log(response);
+            console.log(data);
         }, function (response) {
             // called asynchronously if an error occurs
             // or server returns response with an error status.
@@ -43,7 +43,6 @@ app.factory('AppService', function ($http, $location, $window) {
             }
         }).then(function (response) {
             successCallback();
-
             console.log(response);
         }, function (response) {
             if (errorCallback)
