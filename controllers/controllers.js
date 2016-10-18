@@ -1,5 +1,3 @@
-
-
 app.controller('admController', function ($rootScope, $scope, $location, AppService) {
     $rootScope.activetab = $location.path();
 
@@ -29,7 +27,6 @@ app.controller('admController', function ($rootScope, $scope, $location, AppServ
 
 
     $scope.save = function () {
-
         var config = {
             "password": $scope.form.password,
             "remoteSshPort": $scope.form.remoteSshPort,
@@ -44,12 +41,6 @@ app.controller('admController', function ($rootScope, $scope, $location, AppServ
             alert(error);
         });
     }
-
-
-
-
-
-
 });
 
 app.controller('networkController', function ($rootScope, $scope, $location,AppService) {
@@ -72,7 +63,7 @@ app.controller('networkController', function ($rootScope, $scope, $location,AppS
 
 
     $scope.init = function () {
-      AppService.loadNetworkInfo(function success(result) {
+        AppService.loadNetworkInfo(function success(result) {
             networkData.ipaddress = result.data.ipaddress != "" ? result.data.ipaddress : null;
             networkData.networkMask = result.data.networkMask != "" ? result.data.networkMask : null;
             networkData.defaultGateway = result.data.defaultGateway != "" ? result.data.defaultGateway : null;
@@ -83,7 +74,6 @@ app.controller('networkController', function ($rootScope, $scope, $location,AppS
 
         $scope.form = networkData;
     }
-
 
     $scope.save = function () {
         var networkConfig = {
@@ -99,7 +89,59 @@ app.controller('networkController', function ($rootScope, $scope, $location,AppS
             alert(error);
         });
     }
+});
 
+app.controller('devicesController', function ($window, $rootScope, $scope, $location, AppService) {
+  $rootScope.activetab = $location.path();
+  $scope.init = function () {
+    AppService.loadDevicesInfo(function success(result) {
+        $scope.macAdresses = result.data;
+      }, function error(err){
+        console.log("Error to load devices");
+    });
+  }
+
+  $scope.add = function () {
+    var i;
+    for (i = 0; i < $scope.macAdresses.keys.length; i++) {
+      if ($scope.macAdresses.keys[i].name == null) {
+        $scope.macAdresses.keys[i].name = $scope.newName;
+        $scope.macAdresses.keys[i].mac = $scope.newMac;
+        AppService.saveDevicesInfo($scope.macAdresses,function success(result){
+        }, function error(err){
+          $scope.macAdresses.keys[i].name = null;
+          $scope.macAdresses.keys[i].mac = null;
+          console.log('Error on access to keys file');
+        });
+        break;
+      }
+    }
+    if (i == $scope.macAdresses.keys.length) {
+      alert('No space left to new device on gateway');
+    }
+  };
+
+  $scope.remove = function (key) {
+    var tmp_obj;
+    for (var i = 0; i < $scope.macAdresses.keys.length; i++) {
+      if ($scope.macAdresses.keys[i].name == key.name) {
+        $scope.macAdresses.keys[i].name = null;
+        $scope.macAdresses.keys[i].mac = null;
+        AppService.saveDevicesInfo($scope.macAdresses,function success(result){
+          for (var j = i; j < $scope.macAdresses.keys.length-1; j++) {
+            tmp_obj = $scope.macAdresses.keys[j];
+            $scope.macAdresses.keys[j] = $scope.macAdresses.keys[j+1];
+            $scope.macAdresses.keys[j+1] = tmp_obj;
+          }
+        }, function error(err){
+          $scope.macAdresses.keys[i].name = key.name;
+          $scope.macAdresses.keys[i].mac = key.mac;
+          console.log('Error on access to keys file');
+        });
+        break;
+      }
+    }
+  };
 });
 
 app.controller('mainController', function ($rootScope, $location) {
@@ -113,6 +155,3 @@ app.controller('radioController', function ($rootScope, $location) {
 app.controller('cloudController', function ($rootScope, $location) {
     $rootScope.activetab = $location.path();
 });
-
-
-

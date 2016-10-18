@@ -4,6 +4,7 @@ var passport = require('passport');
 var serverConfig = express();
 var localStrategy = require('passport-local').Strategy;
 var configurationFile = 'gatewayConfig.json';
+var keysFile = 'keys.json';
 
 function writeFile(type, incomingData, successCallback, errorCallback) {
 
@@ -161,6 +162,41 @@ serverConfig.get("/network/info", function (req, res) {
   });
 });
 
+serverConfig.post("/devices/save", function (req, res) {
+  var body = '';
+  req.on('data', function (data) {
+    body += data;
+  });
+
+  req.on('end', function () {
+    try {
+      var jsonObj = JSON.parse(body);
+    } catch(e) {
+      throw e;
+    }
+
+    fs.writeFile(keysFile, JSON.stringify(jsonObj), 'utf8', function(err){
+      if (err) throw err;
+    });
+    res.end();
+  });
+});
+
+serverConfig.get("/devices/info", function (req, res) {
+  var obj;
+  fs.readFile(keysFile, 'utf8', function (err, data) {
+    if (err) throw err;
+
+    try {
+      obj = JSON.parse(data);
+    } catch(e) {
+      throw e;
+    }
+
+    res.setHeader('Content-Type', 'application/json');
+    res.send(obj);
+  });
+});
 
 var port = process.env.PORT || 8080;
 serverConfig.listen(port, function () {

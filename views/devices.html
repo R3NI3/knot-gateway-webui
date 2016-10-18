@@ -1,0 +1,22 @@
+<table id="tDevices" ng-controller="devicesController" ng-init="init()" style="width:100%">
+	<tr>
+		<th>Device Name</th>
+		<th>MAC Adress</th>
+	</tr>
+	<tr ng-repeat="key in macAdresses.keys" ng-if = "key.name != null">
+		<td>{{ key.name }}</td><td>{{ key.mac }}</td>
+		<td>
+		<button class="btn btn-default" ng-click='remove(key)'>
+		<span class="glyphicon glyphicon-plus">Remove</span>
+		</button>
+		</td>
+	</tr>
+	<tr>
+		<td><input type="text" id="newkey" ng-model="newName" placeholder="New name"  required></td>
+		<td><input type="text" id="newkey" ng-model="newMac" placeholder="New MAC"  required></td>
+		<td>
+		<button class="btn btn-default" ng-click='add()'>
+		<span class="glyphicon glyphicon-plus">Add</span>
+		</button>
+		</td>
+	</tr>
