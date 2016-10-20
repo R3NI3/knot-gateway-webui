@@ -28,9 +28,9 @@ function writeFile(type, incomingData, successCallback, errorCallback) {
       localData.administration.sshKey = incomingData.sshKey;
     }
     else if (type == "net") {
-      
+
       localData.network.automaticIp = incomingData.automaticIp;
-      
+
       if (incomingData.automaticIp == false) {
         localData.network.ipaddress = incomingData.ipaddress;
         localData.network.defaultGateway = incomingData.defaultGateway;
